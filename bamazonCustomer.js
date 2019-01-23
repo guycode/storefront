@@ -20,73 +20,15 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
   if (err) throw err;
   // run the start function after the connection is made to prompt the user
-  start();
+  console.log("connection made");
+  display();
 });
 
-// function which prompts the user for what action they should take
-/* function start() {
-  inquirer
-    .prompt({
-      name: "postOrBid",
-      type: "rawlist",
-      message: "What is the ID of the product you would like to purchase?",
-      choices: ["POST", "BID"]
-    })
-    .then(function(answer) {
-      // based on their answer, either call the bid or the post functions
-      if (answer.postOrBid.toUpperCase() === "POST") {
-        postAuction();
-      } else {
-        bidAuction();
-      }
-    });
-} */
-
-// function to handle posting new items up for auction
-function whatItem() {
-  // prompt for info about the item being put up for auction
-  inquirer
-    .prompt([
-      {
-        name: "item",
-        type: "input",
-        message: "What is the item you are looking for?"
-      },
-      {
-        name: "quantity",
-        type: "input",
-        message: "How many would you like to buy?"
-        validate: function(value) {
-          if (this.type(value) === false) {
-            return true;
-          }
-          return "Insufficient Quantity!";
-        }
-      }
-    ])
-    .then(function(answer) {
-      // when finished prompting, insert a new item into the db with that info
-      connection.query(
-        "INSERT INTO bamazon SET ?",
-        {
-          name: answer.item,
-          department_name: answer.department_name,
-          price: answer.price,
-          stock_quantity: answer.stock_quantity
-        },
-        function(err) {
-          if (err) throw err;
-          console.log("Your purchase was made successfully!");
-          // re-prompt the user for if they want to bid or post
-          start();
-        }
-      );
-    });
-}
 
 function display() {
+    var products = "SELECT * FROM products";
   // query the database for all items being auctioned
-  connection.query("SELECT * FROM bamazon", function(err, results) {
+  connection.query("SELECT * FROM products", function(err, results) {
     if (err) throw err;
     // once you have the items, prompt the user for which they'd like to bid on
     inquirer
@@ -96,8 +38,8 @@ function display() {
           type: "rawlist",
           choices: function() {
             var choiceArray = [];
-            for (var i = 0; i < results.length; i++) {
-              choiceArray.push(results[i].item_name);
+            for (var i = 0; i < products.length; i++) {
+              choiceArray.push([i].item_name);
             }
             return choiceArray;
           },
