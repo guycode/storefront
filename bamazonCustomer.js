@@ -19,9 +19,8 @@ var connection = mysql.createConnection({
 // connect to the mysql server and sql database
 connection.connect(function(err) {
   if (err) throw err;
-  // run the start function after the connection is made to prompt the user
+  // display all the items
   console.log("connection made my friend");
-  display();
 });
 
 function itemDisplay() {
@@ -31,7 +30,7 @@ function itemDisplay() {
 		console.log("All Products");
 		var products = [];
 		for (var i = 0; i < res.length; i++) {
-			products.push([res[i].item_id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity]);
+			products.push([res[i].id, res[i].name, res[i].department_name, res[i].price, res[i].stock_quantity]);
 		}
 		var headings = ["Item ID", "Product", "Department", "Price ($)", "Quantity in Stock"];
         console.log(headings, products);
@@ -42,24 +41,17 @@ function itemDisplay() {
 itemDisplay();
 
 
+
 function display() {
     var products = "SELECT * FROM products";
-  // query the database for all items being auctioned
+  // query the database for all items
   connection.query("SELECT * FROM products", function(err, results) {
     if (err) throw err;
-    // once you have the items, prompt the user for which they'd like to bid on
     inquirer
       .prompt([
         {
           name: "choice",
           type: "input",
-          /* choices: function() {
-            var choiceArray = [];
-            for (var i = 0; i < products.length; i++) {
-              choiceArray.push([i].item_name);
-            }
-            return choiceArray;
-          }, */
           message: "What item would you like to purchase today?"
         },
         {
@@ -67,39 +59,26 @@ function display() {
           type: "input",
           message: "How many would you like to buy?"
         }
-      ])
-      .then(function(answer) {
-        for (var i = 0; i < results.length; i++) {
-          if (results[i].item_name === answer.choice) {
-            chosenItem = results[i];
-            console.log('nice choice!')
-          }
-        }
+    
+ // check to see what the user is looking for 
 
-        // determine if bid was high enough
-        if (chosenItem.highest_bid < parseInt(answer.bid)) {
-          // bid was high enough, so update db, let the user know, and start over
-          connection.query(
-            "UPDATE auctions SET ? WHERE ?",
-            [
-              {
-                highest_bid: answer.bid
-              },
-              {
-                id: chosenItem.id
-              }
-            ],
-            function(error) {
-              if (error) throw err;
-              console.log("Bid placed successfully!");
-              start();
-            }
-          );
-        } else {
-          // bid wasn't high enough, so apologize and start over
-          console.log("Your bid was too low. Try again...");
-          start();
-        }
-      });
-  });
-}
+        ]).then(function(answer) {
+            itemID = answer.id;
+            itemQuantity = answer.quantity;
+    
+            connection.query("SELECT * FROM products WHERE item_id=" + itemID, function(err, res) {
+                selected = res[0];
+    
+                if (itemQuantity > selected.stock_quantity && selected.stock_quantity > 1) {
+                    response = "Sorry, we only have " + selected.stock_quantity + " " + selected.name + "s available.";
+                    console.log(response);
+                    productSelection();
+                } else if (itemQuantity > selected.stock_quantity && selected.stock_quantity === 1) {
+                    
+                    promptUser();
+           
+                }
+            });
+        });
+    }
+
