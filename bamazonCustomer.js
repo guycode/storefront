@@ -20,9 +20,26 @@ var connection = mysql.createConnection({
 connection.connect(function(err) {
   if (err) throw err;
   // run the start function after the connection is made to prompt the user
-  console.log("connection made");
+  console.log("connection made my friend");
   display();
 });
+
+function itemDisplay() {
+	connection.query("SELECT * FROM products", function(err, res) {
+        
+		if (err) throw err;
+		console.log("All Products");
+		var products = [];
+		for (var i = 0; i < res.length; i++) {
+			products.push([res[i].item_id, res[i].product_name, res[i].department_name, res[i].price, res[i].stock_quantity]);
+		}
+		var headings = ["Item ID", "Product", "Department", "Price ($)", "Quantity in Stock"];
+        console.log(headings, products);
+	});
+}
+
+
+itemDisplay();
 
 
 function display() {
