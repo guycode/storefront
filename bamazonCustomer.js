@@ -35,14 +35,14 @@ function display() {
       .prompt([
         {
           name: "choice",
-          type: "rawlist",
-          choices: function() {
+          type: "input",
+          /* choices: function() {
             var choiceArray = [];
             for (var i = 0; i < products.length; i++) {
               choiceArray.push([i].item_name);
             }
             return choiceArray;
-          },
+          }, */
           message: "What item would you like to purchase today?"
         },
         {
@@ -52,11 +52,10 @@ function display() {
         }
       ])
       .then(function(answer) {
-        // get the information of the chosen item
-        var chosenItem;
         for (var i = 0; i < results.length; i++) {
           if (results[i].item_name === answer.choice) {
             chosenItem = results[i];
+            console.log('nice choice!')
           }
         }
 
